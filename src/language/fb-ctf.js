@@ -1,6 +1,5 @@
 // @flow
-//this is the file that should be displaying
-//THIS IS MY UPDATED VERSION
+//this is the file that also should be displaying from lang
 
 var Index = require('./index');
 var Widget = require('./widget');
@@ -767,7 +766,6 @@ function setupInputListeners() {
      *   - the country that is being captured
      */
     function captureCountry(country) {
-      console.log(country);
       var $selectCountry = $('.countries .land[title="' + country + '"]', $mapSvg),
           capturedBy = getCapturedByMarkup($selectCountry.closest('g').data('captured')),
           showAnimation = !(is_ie || LIST_VIEW),
@@ -836,9 +834,9 @@ function setupInputListeners() {
             points = FB_CTF.data.COUNTRIES && FB_CTF.data.COUNTRIES[country] ? FB_CTF.data.COUNTRIES[country].points : 0;
 
         $('.capturing-team-name', $container).text(country);
-        $('.points-value', $container).text('+ ' + points + ' Pts I CHANGE THIS');
+        $('.points-value', $container).text('+ ' + points + ' Pts');
         $('.country-name', $container).text(country);
-        console.log($container);
+
         $container.css({
           left: positionX + 'px',
           top: positionY + 'px'
@@ -885,8 +883,8 @@ function setupInputListeners() {
      */
     function launchCaptureModal(country) {
       var data = FB_CTF.data.COUNTRIES[country];
-      Modal.loadPopup('p=country&modal=capture', 'country-capture', function() {
 
+      Modal.loadPopup('p=country&modal=capture', 'country-capture', function() {
         var $container = $('.fb-modal-content'),
             level_id = data ? data.level_id : 0,
             title = data ? data.title : '',
@@ -899,21 +897,12 @@ function setupInputListeners() {
             completed = data ? data.completed : '',
             owner = data ? data.owner : '',
             attachments = data ? data.attachments : '',
-            links = data ? data.links : '',
-            isShortAnswer = data ? data.isShortAnswer : '',
-            choiceA = data ? data.choiceA : '',
-            choiceB = data ? data.choiceB : '',
-            choiceC = data ? data.choiceC : '',
-            choiceD = data ? data.choiceD : '';
+            links = data ? data.links : '';
 
         $('.country-name', $container).text(country);
         $('.country-title', $container).text(title);
         $('input[name=level_id]', $container).attr('value', level_id);
         $('.capture-text', $container).text(intro);
-        $('.choiceA-text', $container).text(choiceA);
-        $('.choiceB-text', $container).text(choiceB);
-        $('.choiceC-text', $container).text(choiceC);
-        $('.choiceD-text', $container).text(choiceD);
         if (attachments instanceof Array) {
           $.each(attachments, function() {
             var f = this.substr(this.lastIndexOf('/') + 1);
@@ -1008,12 +997,8 @@ function setupInputListeners() {
           event.preventDefault();
 
           var score_level = $('input[name=level_id]', $container)[0].value;
-          if(isShortAnswer){
-            var score_answer = $('input[name=answer]', $container)[0].value;
-          }
-          else{
-            var score_answer= $('input[name=multiple_choice_quiz]:radio:checked').val();
-          }
+          var score_answer = $('input[name=answer]', $container)[0].value;
+
           var csrf_token = $('input[name=csrf_token]')[0].value;
           var score_data = {
             action: 'answer_level',
@@ -1034,12 +1019,7 @@ function setupInputListeners() {
             var responseData = JSON.parse(data);
             if (responseData.result === 'OK') {
               console.log('OK');
-              if(isShortAnswer){
-                $('input[name=answer]', $container).css("background-color", "#1f7a1f");
-              }
-              else{
-                $('input[name=multiple_choice_quiz]:radio:checked', $container).css("background-color", "#1f7a1f");
-              }
+              $('input[name=answer]', $container).css("background-color", "#1f7a1f");
               $('.js-trigger-score', $container).text('YES!');
               setTimeout(function() {
                 $('.js-close-modal', $container).click();
@@ -1051,21 +1031,12 @@ function setupInputListeners() {
               $('.js-trigger-score', $container).text('NOPE :(');
               setTimeout(function() {
                 $('.js-trigger-score', $container).text('SUBMIT');
-
-                if(isShortAnswer){
-                  $('input[name=answer]')[0].value = '';
-                  $('input[name=answer]', $container).css("background-color", "");
-                }
-                else{
-                  $('input[name=multiple_choice_quiz]:radio:checked')[0].value = '';
-                  $('input[name=multiple_choice_quiz]:radio:checked', $container).css("background-color", "");
-                }
-
+                $('input[name=answer]')[0].value = '';
+                $('input[name=answer]', $container).css("background-color", "");
               }, 2000);
             }
           });
         });
-
         $($container).on('keypress', function(e) {
           if (e.keyCode == 13) {
             e.preventDefault();

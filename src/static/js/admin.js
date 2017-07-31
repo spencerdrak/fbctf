@@ -668,6 +668,8 @@ function createQuizLevel(section) {
   var points = $('.level_form input[name=points]', section)[0].value;
   var hint = $('.level_form input[name=hint]', section)[0].value;
   var penalty = $('.level_form input[name=penalty]', section)[0].value;
+  //var SA_or_MC = $('.level_form input[name=fb--quiz--multiple_choice_quiz]', section)[0].value;
+  //alert(SA_or_MC);
 
   var create_data = {
     action: 'create_quiz',

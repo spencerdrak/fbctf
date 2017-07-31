@@ -27,27 +27,33 @@ class CountryDataController extends DataController {
       }
 
       $category = await Category::genSingleCategory($level->getCategoryId());
+      $points = $level -> getPoints();
+      $hint_cost = $level->getPenalty();
+
       if ($level->getHint() !== '') {
         // There is hint, can this team afford it?
         if ($level->getPenalty() > $my_team->getPoints()) { // Not enough points
           $hint_cost = -2;
           $hint = 'no';
         } else {
-          $hint = await HintLog::genPreviousHint(
+          $hint = await HintLog::genPreviousHint( //check for a previous hint
             $level->getId(),
             $my_team->getId(),
             false,
           );
-          $score = await ScoreLog::genPreviousScore(
+          $score = await ScoreLog::genPreviousScore( //Boolean - if there is a previous score or not (on this level only.)
             $level->getId(),
             $my_team->getId(),
             false,
           );
-          // Has this team requested this hint or scored this level before?
-          if ($hint || $score) {
+
+          if ($hint) {
+            $points -= $hint_cost;
             $hint_cost = 0;
-          } else {
-            $hint_cost = $level->getPenalty();
+           }
+           // Has this team requested this hint or scored this level before?
+          if ($score) {
+            $hint_cost = 0;
           }
           $hint = ($hint_cost === 0) ? $level->getHint() : 'yes';
         }
@@ -91,12 +97,25 @@ class CountryDataController extends DataController {
       } else {
         $owner = 'Uncaptured';
       }
+
+      //All possible Answer choices for this question
+      $choiceA = "";
+      $choiceB = "";
+      $choiceC = "";
+      $choiceD = "";
+      if($level->getIsShortAnswer()){
+        $choiceA = $level->getChoiceA();
+        $choiceB = $level->getChoiceB();
+        $choiceC = $level->getChoiceC();
+        $choiceD = $level->getChoiceD();
+      }
+
       $country_data = (object) array(
         'level_id' => $level->getId(),
         'title' => $level->getTitle(),
         'intro' => $level->getDescription(),
         'type' => $level->getType(),
-        'points' => $level->getPoints(),
+        'points' => $points,
         'bonus' => $level->getBonus(),
         'category' => $category->getCategory(),
         'owner' => $owner,
@@ -105,6 +124,11 @@ class CountryDataController extends DataController {
         'hint_cost' => $hint_cost,
         'attachments' => $attachments_list,
         'links' => $links_list,
+        'isShortAnswer' => $level->getIsShortAnswer(),
+        'choiceA' => $choiceA,
+        'choiceB' => $choiceB,
+        'choiceC' => $choiceC,
+        'choiceD' => $choiceD,
       );
       /* HH_FIXME[1002] */
       /* HH_FIXME[2011] */

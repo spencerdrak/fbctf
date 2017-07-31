@@ -153,6 +153,14 @@
     &.col-1-4 {
       @include flex(0 1 25%);
     }
+
+    &.col-9-10 {
+      @include flex(0 1 90%);
+    }
+
+    &.col-1-10 {
+      @include flex(0 1 10%);
+    }
   }
 
   &.col-gutters {

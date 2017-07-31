@@ -89,6 +89,26 @@ class Level extends Model implements Importable, Exportable {
     return $this->created_ts;
   }
 
+  public function getIsShortAnswer(): int {
+    return 0;
+  }
+
+  public function getChoiceA(): string {
+    return "Choice A from Levels.php";
+  }
+
+  public function getChoiceB(): string {
+    return "Choice B from Levels.php";
+  }
+
+  public function getChoiceC(): string {
+    return "Choice C from Levels.php";
+  }
+
+  public function getChoiceD(): string {
+    return "Choice D from Levels.php";
+  }
+
   private static function levelFromRow(Map<string, string> $row): Level {
     return new Level(
       intval(must_have_idx($row, 'id')),
@@ -322,7 +342,7 @@ class Level extends Model implements Importable, Exportable {
     }
   }
 
-  // Create a team and return the created level id.
+  // Create a team (<- I think this means to say level) and return the created level id.
   public static async function genCreate(
     string $type,
     string $title,
@@ -642,6 +662,16 @@ class Level extends Model implements Importable, Exportable {
       (int) $active,
       $level_id,
     );
+
+    self::invalidateMCRecords(); // Invalidate Memcached Level data.
+  }
+
+  // Reset level.
+  public static async function genResetBonuses(): Awaitable<void> {
+    $db = await self::genDb();
+
+    //Set all bonuses back to the valid of bonus_fix
+    await $db->queryf('UPDATE levels SET bonus = bonus_fix');
 
     self::invalidateMCRecords(); // Invalidate Memcached Level data.
   }
@@ -977,8 +1007,20 @@ class Level extends Model implements Importable, Exportable {
 
           $level = await self::gen($level_id);
 
+
+          // Check if team has already gotten this hint
+          $hint = await HintLog::genPreviousHint($level_id, $team_id, false);
+          if ($hint) {
+            //Set penalty to the level hint penalty
+            $penalty = $level->getPenalty();
+          }
+          else{
+            //Set penalty to 0 (user did not receive a hint)
+            $penalty = 0;
+          }
+
           // Calculate points to give
-          $points = $level->getPoints() + $level->getBonus();
+          $points = $level->getPoints() + $level->getBonus() - $penalty;
 
           // Adjust bonus
           await self::genAdjustBonus($level_id);
@@ -1083,13 +1125,6 @@ class Level extends Model implements Importable, Exportable {
           if ($team->getPoints() < $penalty) {
             return null;
           }
-
-          // Adjust points
-          await $db->queryf(
-            'UPDATE teams SET points = points - %d WHERE id = %d LIMIT 1',
-            $penalty,
-            $team_id,
-          );
 
           // Log the hint
           await HintLog::genLogGetHint($level_id, $team_id, $penalty);

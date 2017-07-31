@@ -156,8 +156,8 @@ class AdminController extends Controller {
     $select = <select name="fb--conf--password_type"></select>;
     foreach ($types as $type) {
       $select->appendChild(
-        <option
-          class="fb--conf--password_type"
+        <option 
+          class="fb--conf--password_type" 
           value={strval($type->getField())}
           selected={($type->getField() === $config->getField())}>
           {$type->getDescription()}
@@ -469,9 +469,9 @@ class AdminController extends Controller {
       $custom_logo_xhp =
         <div class="form-el el--block-label el--full-text">
           <label for="">{tr('Logo')}</label>
-          <img
-            id="custom-logo-image"
-            class="icon--badge"
+          <img 
+            id="custom-logo-image" 
+            class="icon--badge" 
             src={$custom_logo_image->getValue()}
           />
           <br/>
@@ -1477,27 +1477,6 @@ class AdminController extends Controller {
                     <label>{tr('Hint Penalty')}</label>
                     <input name="penalty" type="text" />
                   </div>
-                </div>
-                <div class="form-el fb-column-container col-gutters">
-                  <form class="all_quiz_form">
-                    <div class="admin-section-toggle radio-inline col">
-                      <input
-                        type="radio"
-                        name="fb--quiz--multiple_choice_quiz"
-                        id="fb--quiz--multiple_choice_quiz--off"
-                        value="yes"
-                        checked={true}
-                      />
-                      <label for="fb--quiz--multiple_choice_quiz--off">{tr('Short Answer')}</label>
-                      <input
-                        type="radio"
-                        name="fb--quiz--multiple_choice_quiz"
-                        id="fb--quiz--multiple_choice_quiz--on"
-                        value="no"
-                      />
-                      <label for="fb--quiz--multiple_choice_quiz--on">{tr('Multiple Choice')}</label>
-                    </div>
-                  </form>
                 </div>
               </div>
             </div>
